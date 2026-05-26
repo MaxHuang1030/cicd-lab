@@ -1,0 +1,42 @@
+name: CI_111062126
+
+on:
+  push:
+    branches: [ main, master ] # 每次 push 時自動執行 (20%)
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      # 1. TypeScript typecheck (20%)
+      - name: TypeScript typecheck
+        run: npm run typecheck
+
+      # 2. Prettier check (20%)
+      - name: Prettier check
+        run: npm run format:check
+
+      # 3. Test (20%) 
+      - name: Run tests
+        run: npm test -- --reporter=default --reporter=junit --outputFile=test-results.xml
+
+      # 4. 將測試結果顯示於 GitHub Actions 頁面 (20%)
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()    # 不論成功或失敗都執行，這樣失敗時你才能看到報告
+        with:
+          name: Vitest Results
+          path: test-results.xml
+          reporter: jest-junit
