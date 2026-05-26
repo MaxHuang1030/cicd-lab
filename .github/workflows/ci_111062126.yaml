@@ -2,7 +2,12 @@ name: CI_111062126
 
 on:
   push:
-    branches: [ main, master ] # 每次 push 時自動執行 (20%)
+    branches: [main, master] # 每次 push 時自動執行 (20%)
+
+permissions:
+  contents: read
+  actions: read
+  checks: write
 
 jobs:
   check-and-test:
@@ -28,14 +33,14 @@ jobs:
       - name: Prettier check
         run: npm run format:check
 
-      # 3. Test (20%) 
+      # 3. Test (20%)
       - name: Run tests
         run: npm test -- --reporter=default --reporter=junit --outputFile=test-results.xml
 
       # 4. 將測試結果顯示於 GitHub Actions 頁面 (20%)
       - name: Test Report
         uses: dorny/test-reporter@v1
-        if: always()    # 不論成功或失敗都執行，這樣失敗時你才能看到報告
+        if: always() # 不論成功或失敗都執行，這樣失敗時你才能看到報告
         with:
           name: Vitest Results
           path: test-results.xml
